@@ -1,0 +1,83 @@
+/* ══════════════════════════════════════════════════════════════
+   IDOGRMS Design Tokens — PRD §6
+   All CSS custom properties for the design system
+   ══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Color Palette ─────────────────────────────────────────── */
+  --color-primary: #3B3F8C;
+  --color-primary-light: #4F54A8;
+  --color-primary-dark: #2D3070;
+  --color-secondary: #0D9488;
+  --color-secondary-light: #14B8A6;
+  --color-warn: #F59E0B;
+  --color-warn-light: #FCD34D;
+  --color-success: #10B981;
+  --color-success-light: #34D399;
+  --color-danger: #F43F5E;
+  --color-danger-light: #FB7185;
+  --color-info: #38BDF8;
+  --color-info-light: #7DD3FC;
+
+  --color-bg: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-text-primary: #1E293B;
+  --color-text-secondary: #64748B;
+  --color-text-inverse: #FFFFFF;
+  --color-border: #E2E8F0;
+  --color-border-focus: #3B3F8C;
+
+  /* ── Typography ────────────────────────────────────────────── */
+  --font-family: 'Inter', Arial, sans-serif;
+  --font-size-caption: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;        /* 14px */
+  --font-size-base: 1rem;          /* 16px */
+  --font-size-md: 1.125rem;        /* 18px */
+  --font-size-lg: 1.25rem;         /* 20px */
+  --font-size-xl: 1.5rem;          /* 24px */
+  --font-size-2xl: 2rem;           /* 32px */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --line-height-tight: 1.25;
+  --line-height-base: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* ── Spacing (4px base) ────────────────────────────────────── */
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+
+  /* ── Border Radius ─────────────────────────────────────────── */
+  --radius-sm: 4px;
+  --radius-button: 6px;
+  --radius-card: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 20px;
+  --radius-full: 50%;
+
+  /* ── Shadows ───────────────────────────────────────────────── */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-focus: 0 0 0 3px rgba(59, 63, 140, 0.25);
+
+  /* ── Transitions ───────────────────────────────────────────── */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 350ms ease;
+
+  /* ── Z-index ───────────────────────────────────────────────── */
+  --z-dropdown: 100;
+  --z-modal: 200;
+  --z-toast: 300;
+}
