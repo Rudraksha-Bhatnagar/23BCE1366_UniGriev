@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import Sidebar from '../components/Sidebar';
 import styles from './AssignedGrievancesPage.module.css';
 
@@ -11,6 +12,7 @@ const STATUS_BADGE = {
 };
 
 export default function AssignedGrievancesPage() {
+    const { user } = useAuth();
     const [grievances, setGrievances] = useState([]);
     const [statusFilter, setStatusFilter] = useState('All');
     const [loading, setLoading] = useState(true);
@@ -27,12 +29,14 @@ export default function AssignedGrievancesPage() {
             .finally(() => setLoading(false));
     }, [statusFilter]);
 
+    const pageTitle = user?.role === 'deptAdmin' ? 'Department Grievances' : 'Assigned Grievances';
+
     return (
         <div className={styles.page}>
             <Sidebar />
             <div className={styles.content}>
                 <div className={styles.header}>
-                    <h1 className={styles.title}>Assigned Grievances</h1>
+                    <h1 className={styles.title}>{pageTitle}</h1>
                 </div>
 
                 <div className={styles.filters}>
@@ -46,8 +50,7 @@ export default function AssignedGrievancesPage() {
                     <div className={styles.loading}>Loading...</div>
                 ) : grievances.length === 0 ? (
                     <div className={styles.empty}>
-                        <div className={styles.emptyIcon}>📭</div>
-                        <p>No grievances assigned to you{statusFilter !== 'All' ? ` with status "${statusFilter}"` : ''}</p>
+                        <p>No grievances found{statusFilter !== 'All' ? ` with status "${statusFilter}"` : ''}</p>
                     </div>
                 ) : (
                     <div className={styles.list}>
@@ -60,10 +63,13 @@ export default function AssignedGrievancesPage() {
                                 <div className={styles.cardTitle}>{g.title}</div>
                                 <div className={styles.cardDesc}>{g.description}</div>
                                 <div className={styles.cardMeta}>
-                                    <span className={styles.metaItem}>📁 {g.category?.name || '—'}</span>
-                                    <span className={styles.metaItem}>⚡ {g.priority}</span>
-                                    <span className={styles.metaItem}>👤 {g.submittedBy?.name || '—'}</span>
-                                    <span className={styles.metaItem}>📅 {new Date(g.createdAt).toLocaleDateString()}</span>
+                                    <span className={styles.metaItem}>{g.category?.name || '\u2014'}</span>
+                                    <span className={styles.metaItem}>{g.priority}</span>
+                                    <span className={styles.metaItem}>By: {g.submittedBy?.name || '\u2014'}</span>
+                                    <span className={styles.metaItem}>
+                                        {g.assignedOfficer?.name ? `Officer: ${g.assignedOfficer.name}` : 'Unassigned'}
+                                    </span>
+                                    <span className={styles.metaItem}>{new Date(g.createdAt).toLocaleDateString()}</span>
                                 </div>
                             </Link>
                         ))}

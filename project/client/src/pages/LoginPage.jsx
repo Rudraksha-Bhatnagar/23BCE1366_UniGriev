@@ -35,7 +35,7 @@ export default function LoginPage() {
                 <div className={styles.branding}>
                     <div className={styles.logo}>
                         <div className={styles.logoIcon}>G</div>
-                        <span className={styles.logoText}>IDOGRMS</span>
+                        <span className={styles.logoText}>UniGriev</span>
                     </div>
                     <h1 className={styles.brandTitle}>
                         Transparent Grievance
@@ -70,7 +70,7 @@ export default function LoginPage() {
                 <div className={styles.card}>
                     <h2 className={styles.cardTitle}>Welcome Back</h2>
                     <p className={styles.cardSubtitle}>
-                        Sign in to your IDOGRMS account
+                        Sign in to your UniGriev account
                     </p>
 
                     {error && <div className={styles.errorAlert}>{error}</div>}

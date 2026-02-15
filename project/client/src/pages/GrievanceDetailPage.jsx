@@ -48,9 +48,8 @@ export default function GrievanceDetailPage() {
         <div className={styles.page}>
             <Sidebar />
             <div className={styles.content}>
-                <Link to="/my-grievances" className={styles.backLink}>← Back to My Grievances</Link>
+                <Link to="/my-grievances" className={styles.backLink}>Back to My Grievances</Link>
 
-                {/* Header card */}
                 <div className={styles.headerCard}>
                     <div className={styles.headerTop}>
                         <span className={styles.grvId}>{g.grievanceId}</span>
@@ -64,16 +63,16 @@ export default function GrievanceDetailPage() {
                         </div>
                         <div className={styles.infoItem}>
                             <div className={styles.infoLabel}>Category</div>
-                            <div className={styles.infoValue}>{g.category?.name || '—'}</div>
+                            <div className={styles.infoValue}>{g.category?.name || '\u2014'}</div>
                         </div>
                         <div className={styles.infoItem}>
                             <div className={styles.infoLabel}>Department</div>
-                            <div className={styles.infoValue}>{g.assignedDepartment?.name || '—'}</div>
+                            <div className={styles.infoValue}>{g.assignedDepartment?.name || '\u2014'}</div>
                         </div>
                         <div className={styles.infoItem}>
                             <div className={styles.infoLabel}>SLA Deadline</div>
                             <div className={styles.infoValue}>
-                                {g.slaDeadline ? new Date(g.slaDeadline).toLocaleDateString() : '—'}
+                                {g.slaDeadline ? new Date(g.slaDeadline).toLocaleDateString() : '\u2014'}
                             </div>
                         </div>
                         <div className={styles.infoItem}>
@@ -87,13 +86,11 @@ export default function GrievanceDetailPage() {
                     </div>
                 </div>
 
-                {/* Description */}
                 <div className={styles.section}>
                     <h3 className={styles.sectionTitle}>Description</h3>
                     <p className={styles.descText}>{g.description}</p>
                 </div>
 
-                {/* Status timeline */}
                 {g.statusHistory && g.statusHistory.length > 0 && (
                     <div className={styles.section}>
                         <h3 className={styles.sectionTitle}>Status Timeline</h3>
@@ -103,7 +100,7 @@ export default function GrievanceDetailPage() {
                                     <div className={styles.timelineDot} />
                                     <div className={styles.timelineStatus}>{entry.status}</div>
                                     <div className={styles.timelineMeta}>
-                                        {entry.changedBy?.name || 'System'} •{' '}
+                                        {entry.changedBy?.name || 'System'} &middot;{' '}
                                         {new Date(entry.timestamp).toLocaleString()}
                                     </div>
                                     {entry.note && <div className={styles.timelineNote}>{entry.note}</div>}
@@ -113,7 +110,6 @@ export default function GrievanceDetailPage() {
                     </div>
                 )}
 
-                {/* Attachments */}
                 {g.attachments && g.attachments.length > 0 && (
                     <div className={styles.section}>
                         <h3 className={styles.sectionTitle}>Attachments ({g.attachments.length})</h3>
@@ -126,7 +122,6 @@ export default function GrievanceDetailPage() {
                                     rel="noopener noreferrer"
                                     className={styles.attachmentItem}
                                 >
-                                    <span className={styles.attachmentIcon}>📄</span>
                                     <span>{att.filename}</span>
                                 </a>
                             ))}

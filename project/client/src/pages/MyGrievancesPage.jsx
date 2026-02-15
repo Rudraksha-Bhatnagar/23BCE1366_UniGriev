@@ -68,11 +68,10 @@ export default function MyGrievancesPage() {
                 <div className={styles.header}>
                     <h1 className={styles.title}>My Grievances</h1>
                     <Link to="/submit-grievance" className={styles.submitBtn}>
-                        ✏️ Submit New
+                        + Submit New
                     </Link>
                 </div>
 
-                {/* Status filters */}
                 <div className={styles.filters}>
                     {STATUS_FILTERS.map((s) => (
                         <button
@@ -85,12 +84,10 @@ export default function MyGrievancesPage() {
                     ))}
                 </div>
 
-                {/* List */}
                 {loading ? (
                     <div className={styles.loading}>Loading grievances...</div>
                 ) : grievances.length === 0 ? (
                     <div className={styles.empty}>
-                        <div className={styles.emptyIcon}>📭</div>
                         <p className={styles.emptyText}>No grievances found</p>
                         <Link to="/submit-grievance" className={styles.submitBtn}>Submit Your First Grievance</Link>
                     </div>
@@ -116,20 +113,19 @@ export default function MyGrievancesPage() {
                                             {g.priority}
                                         </span>
                                         {g.category?.name && (
-                                            <span className={styles.metaDepartment}>📁 {g.category.name}</span>
+                                            <span className={styles.metaDepartment}>{g.category.name}</span>
                                         )}
                                         {g.assignedDepartment?.name && (
-                                            <span className={styles.metaDepartment}>🏢 {g.assignedDepartment.name}</span>
+                                            <span className={styles.metaDepartment}>{g.assignedDepartment.name}</span>
                                         )}
                                         <span className={styles.metaDate}>
-                                            📅 {new Date(g.createdAt).toLocaleDateString()}
+                                            {new Date(g.createdAt).toLocaleDateString()}
                                         </span>
                                     </div>
                                 </Link>
                             ))}
                         </div>
 
-                        {/* Pagination */}
                         {pagination.pages > 1 && (
                             <div className={styles.pagination}>
                                 {Array.from({ length: pagination.pages }, (_, i) => (

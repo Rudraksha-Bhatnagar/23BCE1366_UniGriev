@@ -71,7 +71,7 @@ async function seed() {
         const created = await Category.insertMany(categoryDocs);
         console.log(`Created ${created.length} categories`);
 
-        console.log('\n✅ Seed complete!\n');
+        console.log('\n Seed complete!\n');
         console.log('Departments:');
         deptDocs.forEach((d) => console.log(`  • ${d.name} (${d._id})`));
         console.log('\nCategories:');

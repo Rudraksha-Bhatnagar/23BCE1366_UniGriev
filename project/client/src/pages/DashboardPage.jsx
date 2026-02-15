@@ -21,9 +21,9 @@ export default function DashboardPage() {
 
             <main className={styles.main}>
                 <div className={styles.welcomeSection}>
-                    <h1 className={styles.welcomeTitle}>Welcome, {user.name} 👋</h1>
+                    <h1 className={styles.welcomeTitle}>Welcome back, {user.name}</h1>
                     <p className={styles.welcomeSubtitle}>
-                        Here's an overview of your grievance management dashboard.
+                        Here is an overview of your grievance management dashboard.
                     </p>
                 </div>
 
@@ -51,31 +51,31 @@ export default function DashboardPage() {
 
                 <div className={styles.statsGrid}>
                     <div className={styles.statCard}>
-                        <div className={`${styles.statIcon} ${styles.statIconBlue}`}>📋</div>
+                        <div className={`${styles.statIcon} ${styles.statIconBlue}`}>T</div>
                         <div className={styles.statInfo}>
                             <span className={styles.statLabel}>Total Grievances</span>
-                            <span className={styles.statValue}>—</span>
+                            <span className={styles.statValue}>&mdash;</span>
                         </div>
                     </div>
                     <div className={styles.statCard}>
-                        <div className={`${styles.statIcon} ${styles.statIconAmber}`}>⏳</div>
+                        <div className={`${styles.statIcon} ${styles.statIconAmber}`}>P</div>
                         <div className={styles.statInfo}>
                             <span className={styles.statLabel}>Pending</span>
-                            <span className={styles.statValue}>—</span>
+                            <span className={styles.statValue}>&mdash;</span>
                         </div>
                     </div>
                     <div className={styles.statCard}>
-                        <div className={`${styles.statIcon} ${styles.statIconGreen}`}>✅</div>
+                        <div className={`${styles.statIcon} ${styles.statIconGreen}`}>R</div>
                         <div className={styles.statInfo}>
                             <span className={styles.statLabel}>Resolved</span>
-                            <span className={styles.statValue}>—</span>
+                            <span className={styles.statValue}>&mdash;</span>
                         </div>
                     </div>
                     <div className={styles.statCard}>
-                        <div className={`${styles.statIcon} ${styles.statIconRose}`}>🚨</div>
+                        <div className={`${styles.statIcon} ${styles.statIconRose}`}>E</div>
                         <div className={styles.statInfo}>
                             <span className={styles.statLabel}>Escalated</span>
-                            <span className={styles.statValue}>—</span>
+                            <span className={styles.statValue}>&mdash;</span>
                         </div>
                     </div>
                 </div>
@@ -84,22 +84,18 @@ export default function DashboardPage() {
                     <h3 className={styles.sectionTitle}>Quick Actions</h3>
                     <div className={styles.actionGrid}>
                         <Link to="/submit-grievance" className={styles.actionCard}>
-                            <span className={styles.actionIcon}>📝</span>
                             <span className={styles.actionLabel}>Submit Grievance</span>
                             <span className={styles.actionDesc}>File a new complaint</span>
                         </Link>
                         <Link to="/my-grievances" className={styles.actionCard}>
-                            <span className={styles.actionIcon}>🔍</span>
                             <span className={styles.actionLabel}>Track Status</span>
                             <span className={styles.actionDesc}>Check grievance progress</span>
                         </Link>
                         <Link to="/my-grievances" className={styles.actionCard}>
-                            <span className={styles.actionIcon}>💬</span>
                             <span className={styles.actionLabel}>View Responses</span>
                             <span className={styles.actionDesc}>Read department replies</span>
                         </Link>
                         <div className={styles.actionCard}>
-                            <span className={styles.actionIcon}>⭐</span>
                             <span className={styles.actionLabel}>Give Feedback</span>
                             <span className={styles.actionDesc}>Rate resolved grievances</span>
                         </div>

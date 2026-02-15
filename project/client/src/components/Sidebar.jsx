@@ -23,16 +23,13 @@ export default function Sidebar() {
 
     return (
         <aside className={styles.sidebar}>
-            {/* Brand */}
             <div className={styles.brand}>
                 <div className={styles.logoIcon}>G</div>
-                <span className={styles.logoText}>IDOGRMS</span>
+                <span className={styles.logoText}>UniGriev</span>
             </div>
 
-            {/* Navigation */}
             <nav className={styles.nav}>
                 <NavLink to="/dashboard" className={linkClass}>
-                    <span className={styles.navIcon}>🏠</span>
                     <span className={styles.navLabel}>Dashboard</span>
                 </NavLink>
 
@@ -40,32 +37,29 @@ export default function Sidebar() {
                 <div className={styles.sectionLabel}>Grievances</div>
 
                 <NavLink to="/submit-grievance" className={linkClass}>
-                    <span className={styles.navIcon}>✏️</span>
                     <span className={styles.navLabel}>Submit Grievance</span>
                 </NavLink>
 
                 <NavLink to="/my-grievances" className={linkClass}>
-                    <span className={styles.navIcon}>📋</span>
                     <span className={styles.navLabel}>My Grievances</span>
                 </NavLink>
 
-                {/* Officer/Admin links (Phase 3+) */}
                 {(user?.role === 'officer' || user?.role === 'deptAdmin' || user?.role === 'sysAdmin') && (
                     <>
                         <div className={styles.divider} />
                         <div className={styles.sectionLabel}>Management</div>
 
                         <NavLink to="/assigned-grievances" className={linkClass}>
-                            <span className={styles.navIcon}>📥</span>
-                            <span className={styles.navLabel}>Assigned to Me</span>
+                            <span className={styles.navLabel}>
+                                {user?.role === 'deptAdmin' ? 'Department Grievances' : 'Assigned to Me'}
+                            </span>
                         </NavLink>
                     </>
                 )}
 
                 {(user?.role === 'deptAdmin' || user?.role === 'sysAdmin') && (
-                    <NavLink to="/department" className={linkClass}>
-                        <span className={styles.navIcon}>🏢</span>
-                        <span className={styles.navLabel}>Department</span>
+                    <NavLink to="/admin/departments" className={linkClass}>
+                        <span className={styles.navLabel}>Departments</span>
                     </NavLink>
                 )}
 
@@ -75,19 +69,12 @@ export default function Sidebar() {
                         <div className={styles.sectionLabel}>Administration</div>
 
                         <NavLink to="/admin/users" className={linkClass}>
-                            <span className={styles.navIcon}>👥</span>
                             <span className={styles.navLabel}>Manage Users</span>
-                        </NavLink>
-
-                        <NavLink to="/admin/departments" className={linkClass}>
-                            <span className={styles.navIcon}>🏛️</span>
-                            <span className={styles.navLabel}>Manage Depts</span>
                         </NavLink>
                     </>
                 )}
             </nav>
 
-            {/* Footer — user info + logout */}
             <div className={styles.footer}>
                 <div className={styles.userInfo}>
                     <div className={styles.avatar}>

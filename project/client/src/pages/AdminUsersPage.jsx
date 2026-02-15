@@ -94,7 +94,7 @@ export default function AdminUsersPage() {
                                             <div className={styles.userEmail}>{u.email}</div>
                                         </td>
                                         <td><span className={`${styles.roleBadge} ${ROLE_CLASS[u.role] || ''}`}>{ROLE_LABELS[u.role]}</span></td>
-                                        <td>{u.departmentId?.name || '—'}</td>
+                                        <td>{u.departmentId?.name || '\u2014'}</td>
                                         <td><span className={`${styles.activeBadge} ${u.isActive ? styles.activeTrue : styles.activeFalse}`}>{u.isActive ? 'Active' : 'Inactive'}</span></td>
                                         <td>{new Date(u.createdAt).toLocaleDateString()}</td>
                                         <td>
@@ -116,11 +116,10 @@ export default function AdminUsersPage() {
                     </div>
                 )}
 
-                {/* Edit modal */}
                 {editUser && (
                     <div className={styles.modal} onClick={() => setEditUser(null)}>
                         <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
-                            <h3 className={styles.modalTitle}>Edit User — {editUser.name}</h3>
+                            <h3 className={styles.modalTitle}>Edit User &mdash; {editUser.name}</h3>
                             <div className={styles.formGroup}>
                                 <label className={styles.label}>Role</label>
                                 <select className={styles.select} value={editForm.role} onChange={(e) => setEditForm((p) => ({ ...p, role: e.target.value }))}>

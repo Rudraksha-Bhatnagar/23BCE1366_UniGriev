@@ -10,8 +10,10 @@ export default function GrievanceConfirmation() {
     return (
         <div className={styles.page}>
             <div className={styles.card}>
-                <div className={styles.icon}>✅</div>
-                <h1 className={styles.title}>Grievance Submitted Successfully!</h1>
+                <div className={styles.icon}>
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                </div>
+                <h1 className={styles.title}>Grievance Submitted Successfully</h1>
                 <p className={styles.subtitle}>
                     Your complaint has been received and routed to the appropriate department.
                 </p>

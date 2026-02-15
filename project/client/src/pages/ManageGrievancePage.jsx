@@ -18,7 +18,6 @@ export default function ManageGrievancePage() {
     const [officers, setOfficers] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // Action states
     const [newStatus, setNewStatus] = useState('');
     const [statusNote, setStatusNote] = useState('');
     const [selectedOfficer, setSelectedOfficer] = useState('');
@@ -97,7 +96,7 @@ export default function ManageGrievancePage() {
         <div className={styles.page}>
             <Sidebar />
             <div className={styles.content}>
-                <Link to="/assigned-grievances" className={styles.backLink}>← Back to Assigned</Link>
+                <Link to="/assigned-grievances" className={styles.backLink}>Back to Grievances</Link>
 
                 {successMsg && <div className={styles.successMsg}>{successMsg}</div>}
                 {errorMsg && <div className={styles.errorMsg}>{errorMsg}</div>}
@@ -111,11 +110,11 @@ export default function ManageGrievancePage() {
                     <h1 className={styles.grvTitle}>{g.title}</h1>
                     <div className={styles.infoGrid}>
                         <div className={styles.infoItem}><div className={styles.infoLabel}>Priority</div><div className={styles.infoValue}>{g.priority}</div></div>
-                        <div className={styles.infoItem}><div className={styles.infoLabel}>Category</div><div className={styles.infoValue}>{g.category?.name || '—'}</div></div>
-                        <div className={styles.infoItem}><div className={styles.infoLabel}>Submitted By</div><div className={styles.infoValue}>{g.submittedBy?.name || '—'}</div></div>
-                        <div className={styles.infoItem}><div className={styles.infoLabel}>Department</div><div className={styles.infoValue}>{g.assignedDepartment?.name || '—'}</div></div>
-                        <div className={styles.infoItem}><div className={styles.infoLabel}>Officer</div><div className={styles.infoValue}>{g.assignedOfficer?.name || 'Unassigned'}</div></div>
-                        <div className={styles.infoItem}><div className={styles.infoLabel}>SLA Deadline</div><div className={styles.infoValue}>{g.slaDeadline ? new Date(g.slaDeadline).toLocaleDateString() : '—'}</div></div>
+                        <div className={styles.infoItem}><div className={styles.infoLabel}>Category</div><div className={styles.infoValue}>{g.category?.name || '\u2014'}</div></div>
+                        <div className={styles.infoItem}><div className={styles.infoLabel}>Submitted By</div><div className={styles.infoValue}>{g.submittedBy?.name || '\u2014'} ({g.submittedBy?.email || ''})</div></div>
+                        <div className={styles.infoItem}><div className={styles.infoLabel}>Department</div><div className={styles.infoValue}>{g.assignedDepartment?.name || '\u2014'}</div></div>
+                        <div className={styles.infoItem}><div className={styles.infoLabel}>Assigned Officer</div><div className={styles.infoValue}>{g.assignedOfficer?.name || 'Unassigned'}</div></div>
+                        <div className={styles.infoItem}><div className={styles.infoLabel}>SLA Deadline</div><div className={styles.infoValue}>{g.slaDeadline ? new Date(g.slaDeadline).toLocaleDateString() : '\u2014'}</div></div>
                     </div>
                 </div>
 
@@ -129,7 +128,6 @@ export default function ManageGrievancePage() {
                 <div className={styles.section}>
                     <h3 className={styles.sectionTitle}>Actions</h3>
                     <div className={styles.actionsGrid}>
-                        {/* Status update */}
                         <div className={styles.actionGroup}>
                             <label className={styles.actionLabel}>Update Status</label>
                             <select className={styles.select} value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
@@ -141,7 +139,6 @@ export default function ManageGrievancePage() {
                             </button>
                         </div>
 
-                        {/* Assign officer */}
                         {canAssign && (
                             <div className={styles.actionGroup}>
                                 <label className={styles.actionLabel}>Assign Officer</label>
@@ -187,7 +184,7 @@ export default function ManageGrievancePage() {
                                 <div key={idx} className={styles.timelineItem}>
                                     <div className={styles.timelineDot} />
                                     <div className={styles.timelineStatus}>{entry.status}</div>
-                                    <div className={styles.timelineMeta}>{entry.changedBy?.name || 'System'} • {new Date(entry.timestamp).toLocaleString()}</div>
+                                    <div className={styles.timelineMeta}>{entry.changedBy?.name || 'System'} &middot; {new Date(entry.timestamp).toLocaleString()}</div>
                                     {entry.note && <div className={styles.timelineNote}>{entry.note}</div>}
                                 </div>
                             ))}
@@ -202,7 +199,7 @@ export default function ManageGrievancePage() {
                         <div className={styles.attachmentList}>
                             {g.attachments.map((att, idx) => (
                                 <a key={idx} href={att.path} target="_blank" rel="noopener noreferrer" className={styles.attachmentItem}>
-                                    📄 {att.filename}
+                                    {att.filename}
                                 </a>
                             ))}
                         </div>

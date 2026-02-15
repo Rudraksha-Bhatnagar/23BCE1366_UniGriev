@@ -47,7 +47,7 @@ app.use(errorHandler);
 const startServer = async () => {
     await connectDB();
     app.listen(PORT, () => {
-        console.log(`IDOGRMS server running on http://localhost:${PORT}`);
+        console.log(`UniGriev server running on http://localhost:${PORT}`);
     });
 };
 

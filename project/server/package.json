@@ -1,7 +1,7 @@
 {
   "name": "idogrms-server",
   "version": "1.0.0",
-  "description": "IDOGRMS Backend - Express + MongoDB",
+  "description": "UniGriev Backend - Express + MongoDB",
   "main": "src/index.js",
   "scripts": {
     "dev": "nodemon src/index.js",

@@ -71,7 +71,7 @@ export default function AdminDepartmentsPage() {
                                             {dept.isActive ? 'Active' : 'Inactive'}
                                         </span>
                                     </div>
-                                    <div className={styles.deptEmail}>📧 {dept.contactEmail}</div>
+                                    <div className={styles.deptEmail}>{dept.contactEmail}</div>
 
                                     {deptCats.length > 0 && (
                                         <>
@@ -87,7 +87,7 @@ export default function AdminDepartmentsPage() {
                                     )}
 
                                     <div className={styles.cardActions}>
-                                        <button className={styles.editBtn} onClick={() => openEdit(dept)}>✏️ Edit</button>
+                                        <button className={styles.editBtn} onClick={() => openEdit(dept)}>Edit</button>
                                     </div>
                                 </div>
                             );

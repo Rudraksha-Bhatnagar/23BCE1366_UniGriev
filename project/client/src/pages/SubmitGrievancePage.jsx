@@ -19,7 +19,6 @@ export default function SubmitGrievancePage() {
     const [loading, setLoading] = useState(false);
     const [dragOver, setDragOver] = useState(false);
 
-    // Fetch categories on mount
     useEffect(() => {
         const token = localStorage.getItem('accessToken');
         fetch('/api/categories', { headers: { Authorization: `Bearer ${token}` } })
@@ -33,7 +32,6 @@ export default function SubmitGrievancePage() {
         if (errors[e.target.name]) setErrors((prev) => ({ ...prev, [e.target.name]: '' }));
     };
 
-    // File handling
     const addFiles = (newFiles) => {
         const arr = Array.from(newFiles);
         setFiles((prev) => [...prev, ...arr].slice(0, 5));
@@ -82,7 +80,6 @@ export default function SubmitGrievancePage() {
             const data = await res.json();
             if (!res.ok) throw new Error(data.message || 'Submission failed');
 
-            // Navigate to confirmation
             navigate('/grievance-submitted', { state: { grievance: data.grievance } });
         } catch (err) {
             setServerError(err.message);
@@ -104,14 +101,12 @@ export default function SubmitGrievancePage() {
                     {serverError && <div className={styles.errorAlert}>{serverError}</div>}
 
                     <form className={styles.form} onSubmit={handleSubmit}>
-                        {/* Title */}
                         <div className={styles.formGroup}>
                             <label className={styles.label} htmlFor="grv-title">Grievance Title</label>
                             <input id="grv-title" className={styles.input} name="title" placeholder="Brief summary of your complaint" value={form.title} onChange={handleChange} />
                             {errors.title && <span className={styles.fieldError}>{errors.title}</span>}
                         </div>
 
-                        {/* Category & Priority row */}
                         <div className={styles.row}>
                             <div className={styles.formGroup}>
                                 <label className={styles.label} htmlFor="grv-category">Category</label>
@@ -143,14 +138,12 @@ export default function SubmitGrievancePage() {
                             </div>
                         </div>
 
-                        {/* Description */}
                         <div className={styles.formGroup}>
                             <label className={styles.label} htmlFor="grv-desc">Description</label>
                             <textarea id="grv-desc" className={styles.textarea} name="description" placeholder="Describe your grievance in detail..." value={form.description} onChange={handleChange} />
                             {errors.description && <span className={styles.fieldError}>{errors.description}</span>}
                         </div>
 
-                        {/* File upload */}
                         <div className={styles.formGroup}>
                             <label className={styles.label}>Supporting Documents (optional, max 5 files)</label>
                             <div
@@ -160,9 +153,8 @@ export default function SubmitGrievancePage() {
                                 onDragLeave={handleDragLeave}
                                 onClick={() => fileInputRef.current?.click()}
                             >
-                                <div className={styles.dropzoneIcon}>📎</div>
                                 <p className={styles.dropzoneText}>
-                                    Drag &amp; drop files here, or <span className={styles.dropzoneLink}>browse</span>
+                                    Drag and drop files here, or <span className={styles.dropzoneLink}>browse</span>
                                 </p>
                                 <p className={styles.dropzoneText}>PDF, JPG, PNG, DOC — max 5 MB each</p>
                                 <input
@@ -189,7 +181,7 @@ export default function SubmitGrievancePage() {
                         </div>
 
                         <button type="submit" className={styles.submitBtn} disabled={loading}>
-                            {loading ? <span className={styles.spinner} /> : '📨 Submit Grievance'}
+                            {loading ? <span className={styles.spinner} /> : 'Submit Grievance'}
                         </button>
                     </form>
                 </div>

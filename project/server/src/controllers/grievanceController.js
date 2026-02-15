@@ -102,9 +102,21 @@ const getGrievances = asyncHandler(async (req, res) => {
     if (role === 'citizen') {
         filter.submittedBy = userId;
     } else if (role === 'officer') {
-        filter.assignedOfficer = userId;
+        // Officers see grievances assigned to them OR in their department if unassigned
+        if (departmentId) {
+            filter.$or = [
+                { assignedOfficer: userId },
+                { assignedDepartment: departmentId, assignedOfficer: null },
+            ];
+        } else {
+            filter.assignedOfficer = userId;
+        }
     } else if (role === 'deptAdmin') {
-        filter.assignedDepartment = departmentId;
+        // DeptAdmin sees ALL grievances routed to their department
+        if (departmentId) {
+            filter.assignedDepartment = departmentId;
+        }
+        // If no departmentId set, show nothing rather than all
     }
     // sysAdmin: no filter, sees all
 
@@ -117,6 +129,7 @@ const getGrievances = asyncHandler(async (req, res) => {
         Grievance.find(filter)
             .populate('category', 'name')
             .populate('assignedDepartment', 'name')
+            .populate('assignedOfficer', 'name email')
             .populate('submittedBy', 'name email')
             .sort({ createdAt: -1 })
             .skip(skip)
@@ -175,9 +188,7 @@ const getGrievanceById = asyncHandler(async (req, res) => {
     res.json({ grievance: result });
 });
 
-// ═══════════════════════════════════════════════════════════════
 //  PHASE 3 — Workflow endpoints
-// ═══════════════════════════════════════════════════════════════
 
 const VALID_STATUSES = ['Submitted', 'In Review', 'Awaiting Info', 'In Progress', 'Resolved', 'Closed', 'Escalated'];
 

@@ -83,7 +83,7 @@ export default function RegisterPage() {
                 <div className={styles.branding}>
                     <div className={styles.logo}>
                         <div className={styles.logoIcon}>G</div>
-                        <span className={styles.logoText}>IDOGRMS</span>
+                        <span className={styles.logoText}>UniGriev</span>
                     </div>
                     <h1 className={styles.brandTitle}>
                         Join the Grievance
