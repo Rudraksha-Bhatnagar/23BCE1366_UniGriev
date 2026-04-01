@@ -5,6 +5,9 @@
 }
 
 .content {
+  flex: 1;
+  min-width: 0;
+  overflow-x: hidden;
     flex: 1;
     padding: var(--space-8) var(--space-6);
     max-width: 960px;
@@ -26,7 +29,6 @@
     text-decoration: none;
 }
 
-/* Header */
 .headerCard {
     background: var(--color-surface);
     border-radius: var(--radius-card);
@@ -121,7 +123,6 @@
     color: #E11D48;
 }
 
-/* Sections */
 .section {
     background: var(--color-surface);
     border-radius: var(--radius-card);
@@ -142,13 +143,6 @@
     color: var(--color-text-secondary);
     line-height: var(--line-height-relaxed);
     white-space: pre-wrap;
-}
-
-/* Action panel */
-.actionsGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-6);
 }
 
 @media (max-width: 700px) {
@@ -215,6 +209,26 @@
     cursor: not-allowed;
 }
 
+.actionBtnWarn {
+    background: var(--color-warn);
+    color: white;
+}
+
+.actionBtnWarn:hover {
+    background: #D97706;
+}
+
+.actionBtnWarn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.actionsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-6);
+}
+
 .statusNote {
     width: 100%;
     padding: var(--space-2) var(--space-3);
@@ -228,7 +242,6 @@
     border-color: var(--color-border-focus);
 }
 
-/* Remarks */
 .remarkForm {
     display: flex;
     gap: var(--space-3);
@@ -273,7 +286,6 @@
     color: var(--color-text-secondary);
 }
 
-/* Timeline */
 .timeline {
     position: relative;
     padding-left: var(--space-6);
@@ -329,7 +341,6 @@
     font-style: italic;
 }
 
-/* Attachments */
 .attachmentList {
     display: flex;
     flex-direction: column;
@@ -377,4 +388,164 @@
     text-align: center;
     padding: var(--space-12);
     color: var(--color-text-secondary);
+}
+
+/* ── Admin Override: Reassign Department ── */
+
+.adminOverrideSection {
+    background: var(--color-surface);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    border-left: 4px solid var(--color-primary);
+    padding: var(--space-5) var(--space-6);
+    margin-bottom: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.adminOverrideHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.adminLockIcon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.adminOverrideTitle {
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    flex: 1;
+}
+
+.adminBadge {
+    font-size: 10px;
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    padding: 3px var(--space-2);
+    background: rgba(59, 63, 140, 0.1);
+    color: var(--color-primary);
+    border-radius: var(--radius-pill);
+    border: 1px solid rgba(59, 63, 140, 0.2);
+}
+
+.currentDeptRow {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-bg);
+    border-radius: var(--radius-button);
+    font-size: var(--font-size-sm);
+}
+
+.currentDeptLabel {
+    color: var(--color-text-secondary);
+}
+
+.currentDeptValue {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+}
+
+.suggestionRow {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+.suggestionLabel {
+    font-size: var(--font-size-caption);
+    color: var(--color-text-secondary);
+}
+
+.suggestionChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px var(--space-3);
+    background: rgba(13, 148, 136, 0.08);
+    border: 1px solid rgba(13, 148, 136, 0.3);
+    color: #0D9488;
+    border-radius: var(--radius-pill);
+    font-size: var(--font-size-caption);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.suggestionChip:hover {
+    background: rgba(13, 148, 136, 0.16);
+    border-color: #0D9488;
+}
+
+.suggestionApply {
+    font-weight: var(--font-weight-medium);
+    opacity: 0.8;
+}
+
+.reassignControls {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+}
+
+.reassignSelect {
+    flex: 1;
+}
+
+.actionBtnAdmin {
+    padding: var(--space-2) var(--space-5);
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-button);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+}
+
+.actionBtnAdmin:hover:not(:disabled) {
+    background: var(--color-primary-light);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 63, 140, 0.25);
+}
+
+.actionBtnAdmin:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.reassignReason {
+    width: 100%;
+    box-sizing: border-box;
+    padding: var(--space-2) var(--space-3);
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-button);
+    font-size: var(--font-size-sm);
+    font-family: var(--font-family);
+    color: var(--color-text-primary);
+    background: var(--color-bg);
+    resize: none;
+    outline: none;
+    transition: border-color var(--transition-fast);
+}
+
+.reassignReason:focus {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-focus);
+}
+
+.reassignReason::placeholder {
+    color: var(--color-text-secondary);
+    font-style: italic;
 }

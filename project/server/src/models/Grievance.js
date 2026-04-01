@@ -60,8 +60,6 @@ const grievanceSchema = new mongoose.Schema(
             type: Date,
             default: null,
         },
-
-        // ── Embedded arrays ────────────────────────────────────
         statusHistory: [
             {
                 status: { type: String, required: true },
@@ -93,13 +91,10 @@ const grievanceSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-// Index for common queries
 grievanceSchema.index({ submittedBy: 1, status: 1 });
 grievanceSchema.index({ assignedDepartment: 1, status: 1 });
 grievanceSchema.index({ assignedOfficer: 1, status: 1 });
-grievanceSchema.index({ grievanceId: 1 });
 
-// Pre-save: auto-append status change to statusHistory
 grievanceSchema.pre('save', function (next) {
     if (this.isModified('status')) {
         this.statusHistory.push({
@@ -111,9 +106,6 @@ grievanceSchema.pre('save', function (next) {
     next();
 });
 
-/**
- * Generate a unique grievance ID: GRV-<YYMMDD>-<random 4 chars>
- */
 grievanceSchema.statics.generateGrievanceId = function () {
     const now = new Date();
     const yy = String(now.getFullYear()).slice(-2);

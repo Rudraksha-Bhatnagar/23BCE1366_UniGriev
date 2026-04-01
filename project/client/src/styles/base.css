@@ -1,8 +1,7 @@
-/* ══════════════════════════════════════════════════════════════
-   UniGriev Base Styles — Global Reset & Utilities
-   ══════════════════════════════════════════════════════════════ */
+html, body, #root {
+  height: 100%;
+}
 
-/* ── Reset ───────────────────────────────────────────────────── */
 *,
 *::before,
 *::after {
@@ -60,7 +59,6 @@ ol {
     list-style: none;
 }
 
-/* ── Typography ──────────────────────────────────────────────── */
 h1,
 h2,
 h3,
@@ -88,7 +86,6 @@ h4 {
     font-size: var(--font-size-md);
 }
 
-/* ── Layout Utilities ────────────────────────────────────────── */
 .flex {
     display: flex;
 }
@@ -141,7 +138,6 @@ h4 {
     grid-template-columns: repeat(3, 1fr);
 }
 
-/* ── Visibility ──────────────────────────────────────────────── */
 .sr-only {
     position: absolute;
     width: 1px;
@@ -153,7 +149,6 @@ h4 {
     border: 0;
 }
 
-/* ── Scrollbar ───────────────────────────────────────────────── */
 ::-webkit-scrollbar {
     width: 6px;
 }

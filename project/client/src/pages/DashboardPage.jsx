@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
@@ -12,6 +13,26 @@ const ROLE_LABELS = {
 
 export default function DashboardPage() {
     const { user } = useAuth();
+    const [stats, setStats] = useState({ total: 0, pending: 0, resolved: 0, escalated: 0 });
+    const [statsLoading, setStatsLoading] = useState(true);
+
+    useEffect(() => {
+        const token = localStorage.getItem('accessToken');
+        if (!token) return;
+
+        fetch('/api/grievances/stats', {
+            headers: { Authorization: `Bearer ${token}` },
+        })
+            .then((r) => r.json())
+            .then((data) => setStats({
+                total: data.total || 0,
+                pending: data.pending || 0,
+                resolved: data.resolved || 0,
+                escalated: data.escalated || 0,
+            }))
+            .catch(() => {})
+            .finally(() => setStatsLoading(false));
+    }, []);
 
     if (!user) return null;
 
@@ -54,28 +75,28 @@ export default function DashboardPage() {
                         <div className={`${styles.statIcon} ${styles.statIconBlue}`}>T</div>
                         <div className={styles.statInfo}>
                             <span className={styles.statLabel}>Total Grievances</span>
-                            <span className={styles.statValue}>&mdash;</span>
+                            <span className={styles.statValue}>{statsLoading ? '...' : stats.total}</span>
                         </div>
                     </div>
                     <div className={styles.statCard}>
                         <div className={`${styles.statIcon} ${styles.statIconAmber}`}>P</div>
                         <div className={styles.statInfo}>
                             <span className={styles.statLabel}>Pending</span>
-                            <span className={styles.statValue}>&mdash;</span>
+                            <span className={styles.statValue}>{statsLoading ? '...' : stats.pending}</span>
                         </div>
                     </div>
                     <div className={styles.statCard}>
                         <div className={`${styles.statIcon} ${styles.statIconGreen}`}>R</div>
                         <div className={styles.statInfo}>
                             <span className={styles.statLabel}>Resolved</span>
-                            <span className={styles.statValue}>&mdash;</span>
+                            <span className={styles.statValue}>{statsLoading ? '...' : stats.resolved}</span>
                         </div>
                     </div>
                     <div className={styles.statCard}>
                         <div className={`${styles.statIcon} ${styles.statIconRose}`}>E</div>
                         <div className={styles.statInfo}>
                             <span className={styles.statLabel}>Escalated</span>
-                            <span className={styles.statValue}>&mdash;</span>
+                            <span className={styles.statValue}>{statsLoading ? '...' : stats.escalated}</span>
                         </div>
                     </div>
                 </div>
@@ -95,10 +116,10 @@ export default function DashboardPage() {
                             <span className={styles.actionLabel}>View Responses</span>
                             <span className={styles.actionDesc}>Read department replies</span>
                         </Link>
-                        <div className={styles.actionCard}>
+                        <Link to="/my-grievances" className={styles.actionCard}>
                             <span className={styles.actionLabel}>Give Feedback</span>
                             <span className={styles.actionDesc}>Rate resolved grievances</span>
-                        </div>
+                        </Link>
                     </div>
                 </div>
             </main>

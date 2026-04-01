@@ -2,8 +2,11 @@ const { body, validationResult } = require('express-validator');
 const Grievance = require('../models/Grievance');
 const Category = require('../models/Category');
 const { asyncHandler } = require('../middleware/errorHandler');
+const { createNotification, notifyStatusChange } = require('../services/notificationService');
 
-// ── Validation rules ─────────────────────────────────────────────
+const PENDING_STATUSES = ['Submitted', 'In Review', 'Awaiting Info', 'In Progress'];
+const VALID_STATUSES = ['Submitted', 'In Review', 'Awaiting Info', 'In Progress', 'Resolved', 'Closed', 'Escalated'];
+
 const createGrievanceValidation = [
     body('title').trim().notEmpty().withMessage('Title is required').isLength({ max: 200 }),
     body('description').trim().notEmpty().withMessage('Description is required'),
@@ -14,10 +17,6 @@ const createGrievanceValidation = [
         .withMessage('Invalid priority'),
 ];
 
-/**
- * POST /api/grievances
- * Submit a new grievance (citizen)
- */
 const createGrievance = asyncHandler(async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -26,31 +25,25 @@ const createGrievance = asyncHandler(async (req, res) => {
 
     const { title, description, category, priority } = req.body;
 
-    // Look up category to get department for auto-routing
     const categoryDoc = await Category.findById(category).populate('departmentId');
     if (!categoryDoc) {
         return res.status(400).json({ message: 'Invalid category' });
     }
 
-    // Generate unique grievance ID
     let grievanceId = Grievance.generateGrievanceId();
-    // Ensure uniqueness (very rare collision)
     while (await Grievance.findOne({ grievanceId })) {
         grievanceId = Grievance.generateGrievanceId();
     }
 
-    // Calculate SLA deadline
     const slaDeadline = new Date();
     slaDeadline.setDate(slaDeadline.getDate() + categoryDoc.slaDays);
 
-    // Process uploaded files
     const attachments = (req.files || []).map((file) => ({
         filename: file.originalname,
         path: `/uploads/${file.filename}`,
         uploadedAt: new Date(),
     }));
 
-    // Create grievance with auto-routing
     const grievance = await Grievance.create({
         grievanceId,
         title,
@@ -85,14 +78,6 @@ const createGrievance = asyncHandler(async (req, res) => {
     });
 });
 
-/**
- * GET /api/grievances
- * List grievances — scoped by role:
- *   citizen → own grievances
- *   officer → assigned to them
- *   deptAdmin → department grievances
- *   sysAdmin → all
- */
 const getGrievances = asyncHandler(async (req, res) => {
     const { role, _id: userId, departmentId } = req.user;
     const { status, priority, page = 1, limit = 20 } = req.query;
@@ -102,7 +87,6 @@ const getGrievances = asyncHandler(async (req, res) => {
     if (role === 'citizen') {
         filter.submittedBy = userId;
     } else if (role === 'officer') {
-        // Officers see grievances assigned to them OR in their department if unassigned
         if (departmentId) {
             filter.$or = [
                 { assignedOfficer: userId },
@@ -112,13 +96,10 @@ const getGrievances = asyncHandler(async (req, res) => {
             filter.assignedOfficer = userId;
         }
     } else if (role === 'deptAdmin') {
-        // DeptAdmin sees ALL grievances routed to their department
         if (departmentId) {
             filter.assignedDepartment = departmentId;
         }
-        // If no departmentId set, show nothing rather than all
     }
-    // sysAdmin: no filter, sees all
 
     if (status) filter.status = status;
     if (priority) filter.priority = priority;
@@ -148,10 +129,6 @@ const getGrievances = asyncHandler(async (req, res) => {
     });
 });
 
-/**
- * GET /api/grievances/:id
- * Get single grievance by MongoDB _id or grievanceId
- */
 const getGrievanceById = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
@@ -171,7 +148,6 @@ const getGrievanceById = asyncHandler(async (req, res) => {
         return res.status(404).json({ message: 'Grievance not found' });
     }
 
-    // Citizens can only view their own
     if (
         req.user.role === 'citizen' &&
         grievance.submittedBy._id.toString() !== req.user._id.toString()
@@ -179,7 +155,6 @@ const getGrievanceById = asyncHandler(async (req, res) => {
         return res.status(403).json({ message: 'Access denied' });
     }
 
-    // Strip internal remarks for citizens
     const result = grievance.toObject();
     if (req.user.role === 'citizen') {
         delete result.remarks;
@@ -188,14 +163,6 @@ const getGrievanceById = asyncHandler(async (req, res) => {
     res.json({ grievance: result });
 });
 
-//  PHASE 3 — Workflow endpoints
-
-const VALID_STATUSES = ['Submitted', 'In Review', 'Awaiting Info', 'In Progress', 'Resolved', 'Closed', 'Escalated'];
-
-/**
- * PATCH /api/grievances/:id/status
- * Update grievance status (officer/deptAdmin/sysAdmin)
- */
 const updateGrievanceStatus = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { status, note } = req.body;
@@ -215,12 +182,14 @@ const updateGrievanceStatus = asyncHandler(async (req, res) => {
         return res.status(404).json({ message: 'Grievance not found' });
     }
 
-    // Set transient fields for the pre-save hook
     grievance._statusChangedBy = req.user._id;
     grievance._statusNote = note || `Status changed to ${status}`;
     grievance.status = status;
 
     await grievance.save();
+
+    // Notify the submitter
+    await notifyStatusChange(grievance);
 
     res.json({
         message: `Status updated to '${status}'`,
@@ -232,10 +201,6 @@ const updateGrievanceStatus = asyncHandler(async (req, res) => {
     });
 });
 
-/**
- * PATCH /api/grievances/:id/assign
- * Assign an officer to a grievance (deptAdmin/sysAdmin)
- */
 const assignOfficer = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { officerId } = req.body;
@@ -263,7 +228,6 @@ const assignOfficer = asyncHandler(async (req, res) => {
 
     grievance.assignedOfficer = officerId;
 
-    // Auto-move to "In Review" if still Submitted
     if (grievance.status === 'Submitted') {
         grievance._statusChangedBy = req.user._id;
         grievance._statusNote = `Assigned to officer: ${officer.name}`;
@@ -272,20 +236,25 @@ const assignOfficer = asyncHandler(async (req, res) => {
 
     await grievance.save();
 
+    // Notify the assigned officer
+    await createNotification(
+        officerId,
+        `Grievance ${grievance.grievanceId} has been assigned to you.`,
+        grievance._id,
+        grievance.grievanceId,
+        'assignment'
+    );
+
     res.json({
         message: `Grievance assigned to ${officer.name}`,
         grievance: {
             grievanceId: grievance.grievanceId,
-            assignedOfficer: { id: officer._id, name: officer.name, email: officer.email },
+            assignedOfficer: { _id: officer._id, name: officer.name, email: officer.email },
             status: grievance.status,
         },
     });
 });
 
-/**
- * POST /api/grievances/:id/remarks
- * Add an internal remark to a grievance (officer/admin)
- */
 const addRemark = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { text } = req.body;
@@ -318,6 +287,233 @@ const addRemark = asyncHandler(async (req, res) => {
     });
 });
 
+const submitFeedback = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { rating, comments } = req.body;
+
+    if (!rating || rating < 1 || rating > 5) {
+        return res.status(400).json({ message: 'Rating must be between 1 and 5' });
+    }
+
+    const grievance = await Grievance.findOne({
+        $or: [
+            { _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : undefined },
+            { grievanceId: id },
+        ].filter(Boolean),
+    });
+
+    if (!grievance) {
+        return res.status(404).json({ message: 'Grievance not found' });
+    }
+
+    if (grievance.submittedBy.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ message: 'Only the submitter can provide feedback' });
+    }
+
+    if (!['Resolved', 'Closed'].includes(grievance.status)) {
+        return res.status(400).json({ message: 'Feedback can only be submitted for resolved or closed grievances' });
+    }
+
+    if (grievance.feedback && grievance.feedback.rating) {
+        return res.status(400).json({ message: 'Feedback has already been submitted for this grievance' });
+    }
+
+    grievance.feedback = {
+        rating: parseInt(rating),
+        comments: comments || '',
+        submittedAt: new Date(),
+    };
+
+    await grievance.save();
+
+    res.json({
+        message: 'Feedback submitted successfully',
+        feedback: grievance.feedback,
+    });
+});
+
+const forwardGrievance = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { targetDepartmentId, transferNote } = req.body;
+
+    if (!targetDepartmentId || !transferNote || !transferNote.trim()) {
+        return res.status(400).json({ message: 'targetDepartmentId and transferNote are required' });
+    }
+
+    const Department = require('../models/Department');
+    const targetDept = await Department.findById(targetDepartmentId);
+    if (!targetDept) {
+        return res.status(400).json({ message: 'Target department not found' });
+    }
+
+    const grievance = await Grievance.findOne({
+        $or: [
+            { _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : undefined },
+            { grievanceId: id },
+        ].filter(Boolean),
+    });
+
+    if (!grievance) {
+        return res.status(404).json({ message: 'Grievance not found' });
+    }
+
+    grievance.assignedDepartment = targetDepartmentId;
+    grievance.assignedOfficer = null;
+    grievance._statusChangedBy = req.user._id;
+    grievance._statusNote = `Forwarded to ${targetDept.name}: ${transferNote.trim()}`;
+    grievance.status = 'In Review';
+
+    await grievance.save();
+
+    // Notify submitter
+    await createNotification(
+        grievance.submittedBy,
+        `Your grievance ${grievance.grievanceId} has been forwarded to ${targetDept.name}.`,
+        grievance._id,
+        grievance.grievanceId,
+        'forward'
+    );
+
+    res.json({
+        message: `Grievance forwarded to ${targetDept.name}`,
+        grievance: {
+            grievanceId: grievance.grievanceId,
+            assignedDepartment: { _id: targetDept._id, name: targetDept.name },
+            status: grievance.status,
+        },
+    });
+});
+
+const escalateGrievance = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    const grievance = await Grievance.findOne({
+        $or: [
+            { _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : undefined },
+            { grievanceId: id },
+        ].filter(Boolean),
+    }).populate('assignedDepartment', 'name');
+
+    if (!grievance) {
+        return res.status(404).json({ message: 'Grievance not found' });
+    }
+
+    // Citizens can only escalate their own grievances
+    if (req.user.role === 'citizen' && grievance.submittedBy.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ message: 'Access denied' });
+    }
+
+    if (!PENDING_STATUSES.includes(grievance.status)) {
+        return res.status(400).json({ message: 'Grievance can only be escalated when it is in a pending status' });
+    }
+
+    grievance._statusChangedBy = req.user._id;
+    grievance._statusNote = reason ? `Escalated by citizen: ${reason}` : 'Escalated by citizen request';
+    grievance.status = 'Escalated';
+
+    await grievance.save();
+
+    // Notify submitter
+    await createNotification(
+        grievance.submittedBy,
+        `Your grievance ${grievance.grievanceId} has been escalated.`,
+        grievance._id,
+        grievance.grievanceId,
+        'escalation'
+    );
+
+    // Notify relevant admins in the assigned department using User model
+    const User = require('../models/User');
+    if (grievance.assignedDepartment) {
+        const deptAdmins = await User.find({
+            role: { $in: ['deptAdmin', 'sysAdmin'] },
+            departmentId: grievance.assignedDepartment._id || grievance.assignedDepartment,
+            isActive: true,
+        });
+
+        for (const admin of deptAdmins) {
+            await createNotification(
+                admin._id,
+                `Grievance ${grievance.grievanceId} has been escalated by the citizen.`,
+                grievance._id,
+                grievance.grievanceId,
+                'escalation'
+            );
+        }
+    }
+
+    res.json({
+        message: 'Grievance escalated successfully',
+        grievance: {
+            grievanceId: grievance.grievanceId,
+            status: grievance.status,
+            statusHistory: grievance.statusHistory,
+        },
+    });
+});
+
+const reassignDepartment = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { departmentId, reason } = req.body;
+
+    if (!departmentId) {
+        return res.status(400).json({ message: 'departmentId is required' });
+    }
+
+    const Department = require('../models/Department');
+    const dept = await Department.findById(departmentId);
+    if (!dept) {
+        return res.status(400).json({ message: 'Department not found' });
+    }
+
+    const grievance = await Grievance.findOne({
+        $or: [
+            { _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : undefined },
+            { grievanceId: id },
+        ].filter(Boolean),
+    }).populate('assignedDepartment', 'name');
+
+    if (!grievance) {
+        return res.status(404).json({ message: 'Grievance not found' });
+    }
+
+    const prevDeptName = grievance.assignedDepartment?.name || 'Unassigned';
+    const note = reason
+        ? `Dept reassigned by admin: ${prevDeptName} → ${dept.name}. Reason: ${reason}`
+        : `Dept reassigned by admin: ${prevDeptName} → ${dept.name}`;
+
+    grievance.assignedDepartment = departmentId;
+    grievance.assignedOfficer = null;
+
+    // Log to history without changing status (hook only fires on status change)
+    grievance.statusHistory.push({
+        status: grievance.status,
+        changedBy: req.user._id,
+        note,
+    });
+
+    await grievance.save();
+
+    await createNotification(
+        grievance.submittedBy,
+        `Your grievance ${grievance.grievanceId} has been reassigned to ${dept.name} by an administrator.`,
+        grievance._id,
+        grievance.grievanceId,
+        'forward'
+    );
+
+    res.json({
+        message: `Grievance reassigned to ${dept.name}`,
+        grievance: {
+            grievanceId: grievance.grievanceId,
+            assignedDepartment: { _id: dept._id, name: dept.name },
+            assignedOfficer: null,
+            status: grievance.status,
+        },
+    });
+});
+
 module.exports = {
     createGrievance,
     getGrievances,
@@ -326,4 +522,8 @@ module.exports = {
     updateGrievanceStatus,
     assignOfficer,
     addRemark,
+    submitFeedback,
+    forwardGrievance,
+    escalateGrievance,
+    reassignDepartment,
 };

@@ -8,13 +8,10 @@ const {
     deactivateUser,
 } = require('../controllers/adminController');
 
-// All admin routes require authentication
 router.use(protect);
 
-// Officers list (deptAdmin + sysAdmin)
 router.get('/users/officers', authorizeRoles('deptAdmin', 'sysAdmin'), getOfficers);
 
-// User management (sysAdmin only)
 router.get('/users', authorizeRoles('sysAdmin'), getUsers);
 router.patch('/users/:id', authorizeRoles('sysAdmin'), updateUser);
 router.delete('/users/:id', authorizeRoles('sysAdmin'), deactivateUser);

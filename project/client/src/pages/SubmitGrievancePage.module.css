@@ -1,5 +1,8 @@
 .page { min-height: 100vh; display: flex; background: var(--color-bg); }
-.content { flex: 1; padding: var(--space-8) var(--space-6); max-width: 900px; margin: 0 auto; }
+.content {
+  flex: 1;
+  min-width: 0;
+  overflow-x: hidden; flex: 1; padding: var(--space-8) var(--space-6); max-width: 900px; margin: 0 auto; }
 
 .header { margin-bottom: var(--space-8); }
 .title { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-text-primary); margin-bottom: var(--space-2); }
@@ -25,7 +28,6 @@
 .row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); }
 @media (max-width: 600px) { .row { grid-template-columns: 1fr; } }
 
-/* Priority selector */
 .priorityGroup { display: flex; gap: var(--space-3); flex-wrap: wrap; }
 .priorityBtn { padding: var(--space-2) var(--space-4); border: 1.5px solid var(--color-border); border-radius: var(--radius-pill); font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); cursor: pointer; background: var(--color-surface); color: var(--color-text-secondary); transition: all var(--transition-fast); }
 .priorityBtn:hover { border-color: var(--color-primary); color: var(--color-primary); }
@@ -34,7 +36,6 @@
 .priorityBtnActive.priorityHigh { background: var(--color-warn); border-color: var(--color-warn); }
 .priorityBtnActive.priorityCritical { background: var(--color-danger); border-color: var(--color-danger); }
 
-/* File upload */
 .dropzone { border: 2px dashed var(--color-border); border-radius: var(--radius-card); padding: var(--space-8) var(--space-4); text-align: center; cursor: pointer; transition: all var(--transition-fast); }
 .dropzone:hover, .dropzoneDragOver { border-color: var(--color-primary); background: rgba(59, 63, 140, 0.03); }
 .dropzoneIcon { font-size: 32px; margin-bottom: var(--space-2); }
@@ -46,7 +47,6 @@
 .fileSize { color: var(--color-text-secondary); margin: 0 var(--space-3); }
 .fileRemove { background: none; border: none; color: var(--color-danger); cursor: pointer; font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
 
-/* Submit */
 .submitBtn { width: 100%; padding: var(--space-3) var(--space-6); background: var(--color-primary); color: white; border: none; border-radius: var(--radius-button); font-size: var(--font-size-base); font-weight: var(--font-weight-semibold); cursor: pointer; transition: all var(--transition-fast); margin-top: var(--space-2); }
 .submitBtn:hover { background: var(--color-primary-light); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59, 63, 140, 0.35); }
 .submitBtn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }

@@ -5,6 +5,8 @@ import styles from './AdminDepartmentsPage.module.css';
 export default function AdminDepartmentsPage() {
     const [departments, setDepartments] = useState([]);
     const [categories, setCategories] = useState([]);
+    const [officers, setOfficers] = useState([]);
+    const [grievances, setGrievances] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [editDept, setEditDept] = useState(null);
@@ -19,9 +21,13 @@ export default function AdminDepartmentsPage() {
         Promise.all([
             fetch('/api/departments', { headers }).then((r) => r.json()),
             fetch('/api/categories', { headers }).then((r) => r.json()),
-        ]).then(([dData, cData]) => {
+            fetch('/api/admin/users/officers', { headers }).then((r) => r.json()).catch(() => ({ officers: [] })),
+            fetch('/api/grievances?limit=1000', { headers }).then((r) => r.json()).catch(() => ({ grievances: [] })),
+        ]).then(([dData, cData, oData, gData]) => {
             setDepartments(dData.departments || []);
             setCategories(cData.categories || []);
+            setOfficers(oData.officers || []);
+            setGrievances(gData.grievances || []);
         }).finally(() => setLoading(false));
     };
 
@@ -31,6 +37,22 @@ export default function AdminDepartmentsPage() {
         const cDeptId = c.departmentId?._id || c.departmentId;
         return cDeptId === deptId;
     });
+
+    const getOfficersForDept = (deptId) => officers.filter((o) => {
+        const oDeptId = o.departmentId?._id || o.departmentId;
+        return oDeptId === deptId;
+    });
+
+    const getGrievanceCounts = (deptId) => {
+        const deptGrievs = grievances.filter(g => {
+            const gDeptId = g.assignedDepartment?._id || g.assignedDepartment;
+            return gDeptId === deptId;
+        });
+        const pending = deptGrievs.filter(g => ['Submitted', 'In Review', 'Awaiting Info', 'In Progress'].includes(g.status)).length;
+        const resolved = deptGrievs.filter(g => ['Resolved', 'Closed'].includes(g.status)).length;
+        const escalated = deptGrievs.filter(g => g.status === 'Escalated').length;
+        return { total: deptGrievs.length, pending, resolved, escalated };
+    };
 
     const openCreate = () => { setEditDept(null); setForm({ name: '', contactEmail: '' }); setShowModal(true); };
     const openEdit = (dept) => { setEditDept(dept); setForm({ name: dept.name, contactEmail: dept.contactEmail }); setShowModal(true); };
@@ -63,6 +85,9 @@ export default function AdminDepartmentsPage() {
                     <div className={styles.grid}>
                         {departments.map((dept) => {
                             const deptCats = getCategoriesForDept(dept._id);
+                            const deptOfficers = getOfficersForDept(dept._id);
+                            const stats = getGrievanceCounts(dept._id);
+
                             return (
                                 <div key={dept._id} className={styles.card}>
                                     <div className={styles.cardHeader}>
@@ -72,6 +97,25 @@ export default function AdminDepartmentsPage() {
                                         </span>
                                     </div>
                                     <div className={styles.deptEmail}>{dept.contactEmail}</div>
+                                    
+                                    <div className={styles.statsRow}>
+                                        <span className={styles.statLabel}>Pending: {stats.pending}</span>
+                                        <span className={styles.statLabel}>Resolved: {stats.resolved}</span>
+                                        <span className={styles.statLabel}>Escalated: {stats.escalated}</span>
+                                    </div>
+
+                                    {deptOfficers.length > 0 && (
+                                        <>
+                                            <div className={styles.catLabel}>Officers ({deptOfficers.length})</div>
+                                            <div className={styles.catList}>
+                                                {deptOfficers.map((o) => (
+                                                    <span key={o._id} className={styles.catChip} style={{backgroundColor: '#e0f2fe', color: '#0369a1'}}>
+                                                        {o.name} ({o.role === 'deptAdmin' ? 'Admin' : 'Officer'})
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </>
+                                    )}
 
                                     {deptCats.length > 0 && (
                                         <>

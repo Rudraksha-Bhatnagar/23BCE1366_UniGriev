@@ -3,7 +3,6 @@ const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const { asyncHandler } = require('../middleware/errorHandler');
 
-// ── Helper: generate token pair ──────────────────────────────────
 const generateAccessToken = (user) =>
     jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
@@ -14,7 +13,6 @@ const generateRefreshToken = (user) =>
         expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
     });
 
-// ── Validation rules ─────────────────────────────────────────────
 const registerValidation = [
     body('name').trim().notEmpty().withMessage('Name is required'),
     body('email').isEmail().withMessage('Please provide a valid email'),
@@ -33,14 +31,7 @@ const loginValidation = [
     body('password').notEmpty().withMessage('Password is required'),
 ];
 
-// ── Controllers ──────────────────────────────────────────────────
-
-/**
- * POST /api/auth/register
- * Register a new user
- */
 const register = asyncHandler(async (req, res) => {
-    // Check validation
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ message: 'Validation failed', errors: errors.array() });
@@ -48,17 +39,15 @@ const register = asyncHandler(async (req, res) => {
 
     const { name, email, password, mobileNo, role } = req.body;
 
-    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
         return res.status(400).json({ message: 'An account with this email already exists' });
     }
 
-    // Create user (password hashing handled by pre-save hook)
     const user = await User.create({
         name,
         email,
-        passwordHash: password, // pre-save hook will hash this
+        passwordHash: password,
         mobileNo,
         role: role || 'citizen',
     });
@@ -79,10 +68,6 @@ const register = asyncHandler(async (req, res) => {
     });
 });
 
-/**
- * POST /api/auth/login
- * Authenticate user and return JWT tokens
- */
 const login = asyncHandler(async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -91,7 +76,6 @@ const login = asyncHandler(async (req, res) => {
 
     const { email, password } = req.body;
 
-    // Find user and explicitly include passwordHash
     const user = await User.findOne({ email }).select('+passwordHash');
     if (!user) {
         return res.status(401).json({ message: 'Invalid email or password' });
@@ -101,7 +85,6 @@ const login = asyncHandler(async (req, res) => {
         return res.status(401).json({ message: 'Account has been deactivated' });
     }
 
-    // Compare password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
         return res.status(401).json({ message: 'Invalid email or password' });
@@ -123,10 +106,6 @@ const login = asyncHandler(async (req, res) => {
     });
 });
 
-/**
- * POST /api/auth/refresh
- * Issue a new access token using a valid refresh token
- */
 const refreshTokenHandler = asyncHandler(async (req, res) => {
     const { refreshToken } = req.body;
 
@@ -152,10 +131,6 @@ const refreshTokenHandler = asyncHandler(async (req, res) => {
     }
 });
 
-/**
- * GET /api/auth/me
- * Get current logged-in user
- */
 const getMe = asyncHandler(async (req, res) => {
     res.json({
         user: {

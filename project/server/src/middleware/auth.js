@@ -1,10 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-/**
- * Protect routes — verify JWT from Authorization header
- * Attaches the full user document to req.user
- */
 const protect = async (req, res, next) => {
     try {
         let token;
@@ -37,10 +33,6 @@ const protect = async (req, res, next) => {
     }
 };
 
-/**
- * Authorize specific roles
- * Usage: authorizeRoles('sysAdmin', 'deptAdmin')
- */
 const authorizeRoles = (...roles) => {
     return (req, res, next) => {
         if (!roles.includes(req.user.role)) {

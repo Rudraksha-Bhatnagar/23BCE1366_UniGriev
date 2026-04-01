@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { io } from 'socket.io-client';
 
 const AuthContext = createContext(null);
 
@@ -7,8 +8,26 @@ const API_BASE = '/api/auth';
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const socketRef = useRef(null);
 
-    // Fetch current user using stored token
+    const connectSocket = useCallback((userData) => {
+        if (socketRef.current) {
+            socketRef.current.disconnect();
+        }
+        const socket = io('http://localhost:5000', { withCredentials: true });
+        socket.on('connect', () => {
+            socket.emit('joinRoom', userData.id || userData._id);
+        });
+        socketRef.current = socket;
+    }, []);
+
+    const disconnectSocket = useCallback(() => {
+        if (socketRef.current) {
+            socketRef.current.disconnect();
+            socketRef.current = null;
+        }
+    }, []);
+
     const fetchUser = useCallback(async () => {
         const token = localStorage.getItem('accessToken');
         if (!token) {
@@ -24,8 +43,8 @@ export function AuthProvider({ children }) {
             if (res.ok) {
                 const data = await res.json();
                 setUser(data.user);
+                connectSocket(data.user);
             } else if (res.status === 401) {
-                // Try refresh
                 const refreshed = await tryRefresh();
                 if (!refreshed) {
                     logout();
@@ -36,9 +55,8 @@ export function AuthProvider({ children }) {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [connectSocket]);
 
-    // Refresh access token
     const tryRefresh = async () => {
         const refreshToken = localStorage.getItem('refreshToken');
         if (!refreshToken) return false;
@@ -54,7 +72,6 @@ export function AuthProvider({ children }) {
                 const data = await res.json();
                 localStorage.setItem('accessToken', data.accessToken);
 
-                // Fetch user with new token
                 const userRes = await fetch(`${API_BASE}/me`, {
                     headers: { Authorization: `Bearer ${data.accessToken}` },
                 });
@@ -62,11 +79,11 @@ export function AuthProvider({ children }) {
                 if (userRes.ok) {
                     const userData = await userRes.json();
                     setUser(userData.user);
+                    connectSocket(userData.user);
                     return true;
                 }
             }
         } catch {
-            // Refresh failed
         }
 
         return false;
@@ -74,9 +91,9 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         fetchUser();
-    }, [fetchUser]);
+        return () => disconnectSocket();
+    }, [fetchUser, disconnectSocket]);
 
-    // Register
     const register = async (formData) => {
         const res = await fetch(`${API_BASE}/register`, {
             method: 'POST',
@@ -93,10 +110,10 @@ export function AuthProvider({ children }) {
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('refreshToken', data.refreshToken);
         setUser(data.user);
+        connectSocket(data.user);
         return data;
     };
 
-    // Login
     const login = async (email, password) => {
         const res = await fetch(`${API_BASE}/login`, {
             method: 'POST',
@@ -113,18 +130,19 @@ export function AuthProvider({ children }) {
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('refreshToken', data.refreshToken);
         setUser(data.user);
+        connectSocket(data.user);
         return data;
     };
 
-    // Logout
     const logout = () => {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         setUser(null);
+        disconnectSocket();
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, register, logout, socket: socketRef }}>
             {children}
         </AuthContext.Provider>
     );

@@ -30,7 +30,6 @@ export default function RegisterPage() {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
-        // Clear field error on change
         if (errors[name]) {
             setErrors((prev) => ({ ...prev, [name]: '' }));
         }
@@ -79,7 +78,6 @@ export default function RegisterPage() {
     return (
         <div className={styles.page}>
             <div className={styles.container}>
-                {/* Branding panel */}
                 <div className={styles.branding}>
                     <div className={styles.logo}>
                         <div className={styles.logoIcon}>G</div>
@@ -96,7 +94,6 @@ export default function RegisterPage() {
                     </p>
                 </div>
 
-                {/* Register card */}
                 <div className={styles.card}>
                     <h2 className={styles.cardTitle}>Create Account</h2>
                     <p className={styles.cardSubtitle}>

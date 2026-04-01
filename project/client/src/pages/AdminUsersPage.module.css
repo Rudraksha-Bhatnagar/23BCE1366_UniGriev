@@ -5,6 +5,9 @@
 }
 
 .content {
+  flex: 1;
+  min-width: 0;
+  overflow-x: hidden;
     flex: 1;
     padding: var(--space-8) var(--space-6);
     max-width: 1200px;
@@ -26,7 +29,6 @@
     color: var(--color-text-primary);
 }
 
-/* Filters */
 .toolbar {
     display: flex;
     gap: var(--space-4);
@@ -62,7 +64,6 @@
     min-width: 150px;
 }
 
-/* Table */
 .tableCard {
     background: var(--color-surface);
     border-radius: var(--radius-card);
@@ -178,7 +179,6 @@
     color: var(--color-danger);
 }
 
-/* Edit modal */
 .modal {
     position: fixed;
     inset: 0;

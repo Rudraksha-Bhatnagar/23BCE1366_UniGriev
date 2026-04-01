@@ -31,7 +31,6 @@ export default function LoginPage() {
     return (
         <div className={styles.page}>
             <div className={styles.container}>
-                {/* Branding panel (visible on desktop) */}
                 <div className={styles.branding}>
                     <div className={styles.logo}>
                         <div className={styles.logoIcon}>G</div>
@@ -66,7 +65,6 @@ export default function LoginPage() {
                     </div>
                 </div>
 
-                {/* Login card */}
                 <div className={styles.card}>
                     <h2 className={styles.cardTitle}>Welcome Back</h2>
                     <p className={styles.cardSubtitle}>

@@ -2,10 +2,6 @@ const User = require('../models/User');
 const Department = require('../models/Department');
 const { asyncHandler } = require('../middleware/errorHandler');
 
-/**
- * GET /api/admin/users
- * List all users with optional role/department filters
- */
 const getUsers = asyncHandler(async (req, res) => {
     const { role, departmentId, search, page = 1, limit = 20 } = req.query;
 
@@ -42,16 +38,13 @@ const getUsers = asyncHandler(async (req, res) => {
     });
 });
 
-/**
- * GET /api/admin/users/officers
- * List officers for assignment dropdown (deptAdmin gets own dept, sysAdmin gets all)
- */
 const getOfficers = asyncHandler(async (req, res) => {
     let filter = { role: { $in: ['officer', 'deptAdmin'] }, isActive: true };
 
-    // deptAdmin only sees officers in their department
     if (req.user.role === 'deptAdmin' && req.user.departmentId) {
         filter.departmentId = req.user.departmentId;
+    } else if (req.query.departmentId) {
+        filter.departmentId = req.query.departmentId;
     }
 
     const officers = await User.find(filter)
@@ -62,10 +55,6 @@ const getOfficers = asyncHandler(async (req, res) => {
     res.json({ officers });
 });
 
-/**
- * PATCH /api/admin/users/:id
- * Update user role, department, or active status
- */
 const updateUser = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { role, departmentId, isActive } = req.body;
@@ -94,10 +83,6 @@ const updateUser = asyncHandler(async (req, res) => {
     });
 });
 
-/**
- * DELETE /api/admin/users/:id
- * Deactivate a user (soft delete)
- */
 const deactivateUser = asyncHandler(async (req, res) => {
     const { id } = req.params;
 

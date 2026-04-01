@@ -1,13 +1,9 @@
-/* ══════════════════════════════════════════════════════════════
-   DashboardPage — CSS Module
-   ══════════════════════════════════════════════════════════════ */
-
 .page {
     min-height: 100vh;
     background: var(--color-bg);
+    display: flex;
 }
 
-/* ── Header / Navbar ───────────────────────────────────────── */
 .navbar {
     background: var(--color-surface);
     border-bottom: 1px solid var(--color-border);
@@ -82,8 +78,10 @@
     border-color: var(--color-danger);
 }
 
-/* ── Main content ──────────────────────────────────────────── */
 .main {
+  flex: 1;
+  min-width: 0;
+  overflow-x: hidden;
     max-width: 1200px;
     margin: 0 auto;
     padding: var(--space-8) var(--space-6);
@@ -105,7 +103,6 @@
     color: var(--color-text-secondary);
 }
 
-/* ── Stats cards ───────────────────────────────────────────── */
 .statsGrid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -173,7 +170,6 @@
     color: var(--color-text-primary);
 }
 
-/* ── Quick actions ─────────────────────────────────────────── */
 .quickActions {
     background: var(--color-surface);
     border-radius: var(--radius-card);
@@ -228,7 +224,6 @@
     color: var(--color-text-secondary);
 }
 
-/* ── User info card ────────────────────────────────────────── */
 .userInfoCard {
     background: var(--color-surface);
     border-radius: var(--radius-card);

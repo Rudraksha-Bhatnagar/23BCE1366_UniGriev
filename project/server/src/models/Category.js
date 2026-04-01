@@ -27,7 +27,6 @@ const categorySchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-// Compound index for uniqueness within department
 categorySchema.index({ name: 1, departmentId: 1 }, { unique: true });
 
 module.exports = mongoose.model('Category', categorySchema);
